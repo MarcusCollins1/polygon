@@ -124,10 +124,13 @@ const deleteAccountBtn = document.getElementById("deleteAccountBtn");
 const leaderboardBtn = document.getElementById("leaderboardBtn");
 const closeLeaderboardBtn = document.getElementById("closeLeaderboardBtn");
 const leaderboardTabs = document.querySelectorAll(".leaderboard-tab");
+const leaderboardDatePicker = document.getElementById("leaderboardDatePicker");
+const leaderboardDate = document.getElementById("leaderboardDate");
 
 let currentUser = JSON.parse(localStorage.getItem("polygonCurrentUser") || "null");
 let usersWithScores = [];
 let currentLeaderboardView = "today";
+let selectedLeaderboardDate = getDayStr();
 
 function showLoggedInUser(username) {
     if (currentUsernameAuth) currentUsernameAuth.textContent = username;
@@ -205,14 +208,15 @@ async function deleteAccount() {
     closeAccountBox();
 }
 
-async function loadLeaderboard(view = currentLeaderboardView) {
+async function loadLeaderboard(view = currentLeaderboardView, dayStr = selectedLeaderboardDate) {
     const querySnapshot = await getDocs(collection(db, "polygon-users"));
-    const dayStr = getDayStr();
+    const todayStr = getDayStr();
 
     const userPromises = querySnapshot.docs.map(async (docSnap) => {
         const userData = docSnap.data();
 
-        const [today, allTime, average, best] = await Promise.all([
+        const [today, specificDay, allTime, average, best] = await Promise.all([
+            getScoreFromDay(userData, todayStr),
             getScoreFromDay(userData, dayStr),
             getAllTimeScore(userData),
             getAverageScore(userData),
@@ -223,6 +227,7 @@ async function loadLeaderboard(view = currentLeaderboardView) {
             id: docSnap.id,
             ...userData,
             today,
+            specificDay,
             allTime,
             average,
             best
@@ -242,6 +247,7 @@ function renderLeaderboard(view) {
 
     const sorted = [...usersWithScores].sort((a, b) => {
         if (view === "today") return b.today - a.today;
+        if (view === "specificDay") return b.specificDay- a.specificDay;
         if (view === "allTime") return b.allTime - a.allTime;
         if (view === "average") return b.average - a.average;
         if (view === "best") return b.best - a.best;
@@ -253,6 +259,7 @@ function renderLeaderboard(view) {
         let value = 0;
 
         if (view === "today") value = user.today;
+        if (view === "specificDay") value = user.specificDay;
         if (view === "allTime") value = user.allTime;
         if (view === "average") value = user.average.toFixed(2);
         if (view === "best") value = user.best;
@@ -278,7 +285,15 @@ function setActiveTab(view) {
 }
 
 async function openLeaderboardBox() {
-    await loadLeaderboard(currentLeaderboardView);
+    const today = getDayStr();
+
+    leaderboardDate.max = today;
+
+    if (!leaderboardDate.value) {
+        leaderboardDate.value = today;
+    }
+
+    await loadLeaderboard(currentLeaderboardView, selectedLeaderboardDate);
 
     if (leaderboardOverlay) {
         leaderboardOverlay.classList.remove("hidden");
@@ -342,12 +357,27 @@ if (showHideCurrentPasswordAccountButton) {
 }
 
 leaderboardTabs.forEach((btn) => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
         currentLeaderboardView = btn.dataset.view || "today";
 
-        renderLeaderboard(currentLeaderboardView);
-        setActiveTab(currentLeaderboardView);
+        if (currentLeaderboardView === "specificDay") {
+            leaderboardDatePicker.classList.remove("hidden");
+            leaderboardDate.value = selectedLeaderboardDate;
+            await loadLeaderboard("specificDay", selectedLeaderboardDate);
+        } else {
+            leaderboardDatePicker.classList.add("hidden");
+            await loadLeaderboard(currentLeaderboardView);
+        }
     });
+});
+
+leaderboardDate.addEventListener("change", async () => {
+    if (!leaderboardDate.value) {
+        return;
+    }
+    selectedLeaderboardDate = leaderboardDate.value;
+
+    await loadLeaderboard("specificDay", selectedLeaderboardDate);
 });
 
 if (logoutBtn) {

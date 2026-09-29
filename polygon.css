@@ -194,6 +194,21 @@ button {
     gap: 8px;
     flex-wrap: wrap;
 }
+.leaderboard-date-picker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.leaderboard-date-picker label {
+    font-weight: bold;
+}
+.leaderboard-date-picker input {
+    flex: 1;
+    padding: 8px;
+}
+.leaderboard-date-picker.hidden {
+    display: none;
+}
 .password-line {
     display: flex;
     align-items: center;

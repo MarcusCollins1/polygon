@@ -62,9 +62,15 @@
 
             <div class="leaderboard-tabs">
                 <button class="leaderboard-tab active" data-view="today">Current day</button>
+                <button class="leaderboard-tab" data-view="specificDay">Specific day</button>
                 <button class="leaderboard-tab" data-view="allTime">All time</button>
                 <button class="leaderboard-tab" data-view="average">Avg / day</button>
                 <button class="leaderboard-tab" data-view="best">Best day</button>
+            </div>
+
+            <div id="leaderboardDatePicker" class="leaderboard-date-picker hidden">
+                <label for="leaderboardDate">Choose day:</label>
+                <input type="date" id="leaderboardDate" name="leaderboardDate" min="2026-05-20">
             </div>
 
             <div id="leaderboardBoxLeaderboard"></div>
