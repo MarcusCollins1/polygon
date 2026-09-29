@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polygon Game</title>
+    <link rel="stylesheet" href="polygon.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+</head>
+<body>
+    <div class="top-buttons">
+        <button id="return-button" class="return-button" onclick="location.href='../../games.html'">← Return</button>
+        <button id="login-button" class="login-button">Login / Sign Up</button>
+        <button id="leaderboardBtn" class="leaderboard-button">Leaderboard</button>
+    </div>
+
+    <div id="authOverlay" class="auth-overlay hidden">
+        <div class="auth-box">
+            <h2>Account</h2>
+
+            <input id="authUsername" type="text" placeholder="Username" autocomplete="username" />
+            <input id="authPassword" type="password" placeholder="Password" autocomplete="current-password" />
+            <p>This is not at all secure, do not use passwords you already use!</p>
+
+            <div class="auth-actions">
+                <button id="signupBtn">Sign Up</button>
+                <button id="loginSubmitBtn">Login</button>
+                <button id="closeAuthBtn" class="secondary" type="button">Cancel</button>
+            </div>
+
+            <p id="authMsg"></p>
+        </div>
+    </div>
+
+    <div id="userBar" class="user-bar hidden">
+        <span>Logged in as <strong id="currentUsernameAuth"></strong></span>
+        <button id="logoutBtn" class="logout-button" type="button">Logout</button>
+    </div>
+
+    <div id="accountOverlay" class="account-overlay hidden">
+        <div class="account-box">
+            <h2>Account</h2>
+            <p>Username: <strong id="currentUsernameAccount"></strong></p>
+            <p class="password-line">
+                Password: 
+                <strong id="currentPasswordAccount"></strong>
+                <button id="showHideCurrentPasswordAccountButton" class="show-hide-password-button icon-button">
+                    <img id="showHideCurrentPasswordAccountButtonImage" src="eye-icon.png" alt="Toggle Password Visibility">
+                </button>
+            </p>
+            
+            <div class="account-actions">
+                <button id="closeAccountBtn">Close</button>
+                <button id="deleteAccountBtn" class="delete-button">Delete Account</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="leaderboardOverlay" class="leaderboard-overlay hidden">
+        <div id="leaderboardBox" class="leaderboard-box">
+            <h2>Leaderboard</h2>
+
+            <div class="leaderboard-tabs">
+                <button class="leaderboard-tab active" data-view="today">Current day</button>
+                <button class="leaderboard-tab" data-view="allTime">All time</button>
+                <button class="leaderboard-tab" data-view="average">Avg / day</button>
+                <button class="leaderboard-tab" data-view="best">Best day</button>
+            </div>
+
+            <div id="leaderboardBoxLeaderboard"></div>
+            <div class="leaderboard-actions">
+                <button id="closeLeaderboardBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="app">
+        <section class="card">
+            <h1>Polygon Word Puzzle</h1>
+            <p class="subtitle">
+                Make words using the letters in the polygon. Every word must include the center letter.
+            </p>
+
+            <div class="board-wrap">
+                <div class="board" id="board">
+                    <div class="center" id="centerLetterBtn"><span id="centerLetter"></span></div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="input-row">
+                    <input id="wordInput" type="text" placeholder="Type a word and press Enter" autocomplete="off" />
+                    <button id="backSpaceBtn">⌫</button>
+                    <button id="submitBtn">Submit</button>
+                </div>
+                <div class="msg" id="message"></div>
+
+                <div class="stats">
+                    <div class="stat">
+                        <div class="label">Found</div>
+                        <div class="value" id="foundCount">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">Score</div>
+                        <div class="value" id="score">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">Total</div>
+                        <div class="value" id="totalCount">0</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <aside class="card side">
+            <h2>Found words</h2>
+            <div class="words" id="foundWords"></div>
+
+            <div class="rules">
+                <strong>Rules:</strong><br />
+                • Use only the letters shown.<br />
+                • Every word must include the center letter.<br />
+                • Words must be at least 4 letters long.<br />
+                • Press Reset to start over.
+            </div>
+
+            <div style="margin-top:16px; display:flex; gap:10px;">
+                <button class="secondary" id="resetBtn">Reset</button>
+                <button class="secondary" id="revealBtn">Show Answers</button>
+                <button class="secondary" id="shareBtn">Share</button>
+            </div>
+        </aside>
+    </div>
+    <script type="module" src="polygonFireBase.js"></script>
+    <script type="module" src="polygon.js"></script>
+</body>
+</html>
