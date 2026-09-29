@@ -613,6 +613,8 @@ function createMessageElement(message) {
         await updateUnreadMessageCount();
 
     });
+
+    return item;
 }
 
 async function updateUnreadMessageCount() {
