@@ -211,7 +211,7 @@ function revealAnswers() {
 function share() {
     const date = new Date();
     const maxScore = puzzle.words.reduce((sum, w) => sum + scoreForWord(w), 0);
-    const string = `Polygon Puzzle - ${date.toDateString()}\nFound ${found.size}/${puzzle.words.length}\nScore: ${scoreEl.textContent}/${maxScore}\nhttps://marcuscollins1.github.io/Games/Polygon/polygon.html`;
+    const string = `Polygon Puzzle - ${date.toDateString()}\nFound ${found.size}/${puzzle.words.length}\nScore: ${scoreEl.textContent}/${maxScore}\nhttps://marcuscollins1.github.io/polygon/`;
     navigator.clipboard.writeText(string).then(() => {
         setMessage("Results copied to clipboard!", "good");
     }).catch(() => {
