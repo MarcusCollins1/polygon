@@ -68,6 +68,7 @@ const foundWords = document.getElementById("foundWords");
 const foundCount = document.getElementById("foundCount");
 const scoreEl = document.getElementById("score");
 const totalCount = document.getElementById("totalCount");
+const totalScore = document.getElementById("totalScore");
 
 let found = new Set();
 let showingAnswers = false;
@@ -101,6 +102,9 @@ function buildBoard() {
     });
 
     totalCount.textContent = puzzle.words.length;
+    totalScore.textContent = puzzle.words.reduce((total, word) => {
+        return total + (word.length - 3);
+    }, 0);
 }
 
 function updateStats() {
