@@ -416,6 +416,11 @@ button.secondary {
     padding: 8px 10px;
     border-radius: 999px;
     font-size: 0.95rem;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.word:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 12px rgb(209, 22, 150, 0.35);
 }
 .rules {
     margin-top: 18px;
