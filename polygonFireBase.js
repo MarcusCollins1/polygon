@@ -10,7 +10,10 @@ import {
     addDoc,
     serverTimestamp,
     arrayUnion,
-    updateDoc
+    updateDoc,
+    query,
+    where,
+    orderBy
 } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js";
 
@@ -126,11 +129,22 @@ const closeLeaderboardBtn = document.getElementById("closeLeaderboardBtn");
 const leaderboardTabs = document.querySelectorAll(".leaderboard-tab");
 const leaderboardDatePicker = document.getElementById("leaderboardDatePicker");
 const leaderboardDate = document.getElementById("leaderboardDate");
+const messagesBtn = document.getElementById("messagesBtn");
+const messagesOverlay = document.getElementById("messagesOverlay");
+const messagesList = document.getElementById("messagesList");
+const closeMessagesBtn = document.getElementById("closeMessagesBtn");
+const unreadMessageCount = document.getElementById("unreadMessageCount");
+const messageOverlay = document.getElementById("messageOverlay");
+const messageTitle = document.getElementById("messageTitle");
+const messageBody = document.getElementById("messageBody");
+const markMessageReadBtn = document.getElementById("markMessageReadBtn");
+const closeMessageBtn = document.getElementById("closeMessageBtn");
 
 let currentUser = JSON.parse(localStorage.getItem("polygonCurrentUser") || "null");
 let usersWithScores = [];
 let currentLeaderboardView = "today";
 let selectedLeaderboardDate = getDayStr();
+let currentMessage = null;
 
 function showLoggedInUser(username) {
     if (currentUsernameAuth) currentUsernameAuth.textContent = username;
@@ -148,6 +162,7 @@ function clearLoggedInUser() {
 
 if (currentUser?.username) {
     showLoggedInUser(currentUser.username);
+    checkUnreadMessages();
 }
 
 function openAuthBox() {
@@ -461,6 +476,8 @@ async function login() {
     closeAuthBox();
 
     window.loadUserWords?.();
+
+    await checkUnreadMessages();
 }
 
 if (signupBtn) {
@@ -474,6 +491,196 @@ if (loginSubmitBtn) {
     loginSubmitBtn.addEventListener("click", async (e) => {
         e.preventDefault();
         await login();
+    });
+}
+
+async function getUserMessages() {
+    if (!currentUser?.username) {
+        return [];
+    }
+
+    const messagesQuery = query(
+        collection(db, "polygon-messages"),
+        where("username", "==", currentUser.username)
+    );
+
+    const snapshot= await getDocs(messagesQuery);
+    
+    const messages = snapshot.docs.map(docSnap => ({
+        id: docSnap.id,
+        ...docSnap.data()
+    }));
+
+    // Newest first
+    messages.sort((a, b) => {
+        return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+    });
+
+    return messages;
+}
+
+async function markMessageAsRead(messageId) {
+    const messageRef = doc(db, "polygon-messages", messageId);
+    await updateDoc(messageRef, {
+        read: true,
+        readAt: serverTimestamp()
+    });
+}
+
+async function loadMessages() {
+    const messages = await getUserMessages();
+
+    messagesList.innerHTML = "";
+
+    const unreadCount = messages.filter(message => !message.read).length;
+
+    if (unreadCount > 0) {
+        unreadMessageCount.textContent = `${unreadCount} unread`;
+    } else {
+        unreadMessageCount.textContent = "";
+    }
+
+    if (messages.length === 0) {
+        messagesList.innerHTML = `
+            <p>You have no messages.</p>
+        `;
+        return;
+    }
+
+    for (const message of messages) {
+        const messageElement = createMessageElement(message);
+        messagesList.appendChild(messageElement);
+    }
+}
+
+function createMessageElement(message) {
+    const item = document.createElement("div");
+    item.className = `message-item ${message.read ? "read" : "unread"}`;
+
+    const header = document.createElement("div")
+    header.className = "message-item-header";
+
+    // Title
+    const title = document.createElement("span");
+    title.textContent = message.title || "Message";
+
+    // Date
+    const date = document.createElement("span");
+    date.className = "message-item-date";
+    if (message.createdAt?.toDate) {
+        date.textContent = message.createdAt.toDate().toLocaleDateString();
+    }
+
+    // Message body
+    const body = document.createElement("div");
+    body.className = "message-item-body";
+    body.textContent = message.message || "";
+
+    // Read status
+    const status = document.createElement("div");
+    status.className = "message-status";
+    status.textContent = message.read ? "Read" : "Unread";
+
+    header.appendChild(title);
+    header.appendChild(date);
+
+    body.appendChild(status);
+
+    item.appendChild(header);
+    item.appendChild(body);
+
+    // Click message
+
+    item.addEventListener("click", async () => {
+
+        item.classList.toggle("open");
+
+        // Don't do anything if already read
+        if (message.read) {
+            return;
+        }
+
+        await markMessageAsRead(message.id);
+
+        message.read = true;
+
+        // Update UI
+        item.classList.remove("unread");
+        item.classList.add("read");
+
+        status.textContent = "Read";
+
+        await updateUnreadMessageCount();
+
+    });
+}
+
+async function updateUnreadMessageCount() {
+    const messages = await getUserMessages();
+
+    const unreadCount = messages.filter(message => !message.read).length;
+
+    if (unreadCount > 0) {
+        unreadMessageCount.textContent = `${unreadCount} unread`;
+    } else {
+        unreadMessageCount.textContent = "";
+    }
+}
+
+async function openMessages() {
+    await loadMessages();
+
+    messagesOverlay.classList.remove("hidden");
+}
+
+function closeMessages() {
+    messagesOverlay.classList.add("hidden");
+}
+
+async function checkUnreadMessages() {
+    const messages = await getUserMessages();
+
+    const unreadMessages = messages.filter(message => !message.read);
+    if (unreadMessages.length === 0) {
+        return;
+    }
+    // Show oldest unread message first
+    unreadMessages.reverse();
+    showMessage(unreadMessages[0]);
+}
+
+function showMessage(message) {
+    currentMessage = message;
+    messageTitle.textContent = message.title || "Message";
+    messageBody.textContent = message.message || "";
+    messageOverlay.classList.remove("hidden");
+}
+
+if (messagesBtn) {
+    messagesBtn.addEventListener("click", openMessages);
+}
+if (closeMessagesBtn) {
+    closeMessagesBtn.addEventListener("click", closeMessages);
+}
+
+if (markMessageReadBtn) {
+    markMessageReadBtn.addEventListener("click", async () => {
+        if (!currentMessage) {
+            return;
+        }
+
+        await markMessageAsRead(currentMessage.id);
+        messageOverlay.classList.add("hidden");
+        currentMessage = null;
+        // See if another unread message exists
+        await checkUnreadMessages();
+    });
+}
+
+if (closeMessageBtn) {
+    closeMessageBtn.addEventListener("click", () => {
+        messageOverlay.classList.add("hidden");
+        currentMessage = null;
     });
 }
 
