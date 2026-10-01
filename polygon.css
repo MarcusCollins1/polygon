@@ -417,6 +417,16 @@ h1 {
     font-size: 0.98rem;
     line-height: 1.4;
 }
+.next-puzzle {
+    margin: -8px 0 18px;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+#nextPuzzleCountdown {
+    color: var(--accent);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
 .board-wrap {
     display: grid;
     place-items: center;

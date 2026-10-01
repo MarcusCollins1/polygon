@@ -54,6 +54,7 @@ if (puzzle) {
 
 const isPhone = window.matchMedia("(max-width: 768px)").matches;
 
+const nextPuzzleCountdown = document.getElementById("nextPuzzleCountdown");
 const board = document.getElementById("board");
 const centerLetterBtn = document.getElementById("centerLetterBtn");
 const centerLetter = document.getElementById("centerLetter");
@@ -72,6 +73,35 @@ const totalScore = document.getElementById("totalScore");
 
 let found = new Set();
 let showingAnswers = false;
+
+function updateNextPuzzleCountdown() {
+    const now = new Date();
+
+    const nextMidnight = new Date(
+        Date.UTC(
+            now.getUTCFullYear(),
+            now.getUTCMonth(),
+            now.getUTCDate() + 1,
+            0, 0, 0, 0
+        )
+    );
+
+    const remaining = Math.max(0, nextMidnight - now);
+
+    const totalSeconds = Math.floor(remaining / 1000);
+
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    nextPuzzleCountdown.textContent = 
+        `${String(hours).padStart(2, "0")}:` +
+        `${String(minutes).padStart(2, "0")}:` +
+        `${String(seconds).padStart(2, "0")}`;
+}
+
+updateNextPuzzleCountdown();
+setInterval(updateNextPuzzleCountdown, 1000);
 
 function normalize(word) {
     return word.trim().toLowerCase();
