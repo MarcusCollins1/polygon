@@ -284,6 +284,11 @@ function renderLeaderboard(view) {
             (user.username === currentUser.username ||
              user.id === currentUser.username)
 
+        // Skip if not current user and score is 0
+        if (!isCurrentUser && value === 0) {
+            return "";
+        }
+
         return `
             <div class="leaderboard-row ${isCurrentUser ? "current-user-row" : ""}">
                 <span>#${index + 1} ${user.name || user.username || user.id}</span>
