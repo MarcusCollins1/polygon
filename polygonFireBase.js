@@ -65,42 +65,28 @@ async function getUserDays(user) {
     }));
 }
 
-async function getScoreFromDay(user, dayStr) {
-    const days = await getUserDays(user);
-    const day = days.find((entry) => entry.id === dayStr);
-    const words = day?.words || [];
-    return scoreFromWords(words);
-}
+function calculateUserScores(days, todayStr, specificDayStr) {
+    const scores = days.map(day => ({
+        date: day.id,
+        score: scoreFromWords(day.words || [])
+    }));
 
-async function getAllTimeScore(user) {
-    const days = await getUserDays(user);
-    return days.reduce((total, day) => total + scoreFromWords(day.words || []), 0);
-}
+    const today = scores.find(day => day.date === todayStr)?.score || 0;
+    const specificDay = scores.find(day => day.date === specificDayStr)?.score || 0;
+    const allTime = scores.reduce(
+        (total, day) => total + day.score,
+        0
+    );
+    const average = scores.length > 0 ? allTime / scores.length : 0;
+    const best = scores.length > 0 ? Math.max(...scores.map(day => day.score)) : 0;
 
-async function getAverageScore(user) {
-    const days = await getUserDays(user);
-
-    if (days.length === 0) return 0;
-
-    const total = days.reduce((sum, day) => {
-        return sum + scoreFromWords(day.words || []);
-    }, 0);
-
-    return total / days.length;
-}
-
-async function getBestScore(user) {
-    const days = await getUserDays(user);
-
-    if (days.length === 0) return 0;
-
-    let best = 0;
-
-    for (const day of days) {
-        best = Math.max(best, scoreFromWords(day.words || []));
-    }
-
-    return best;
+    return {
+        today,
+        specificDay,
+        allTime,
+        average,
+        best
+    };
 }
 
 // ---------- login / signup UI ----------
@@ -228,24 +214,18 @@ async function loadLeaderboard(view = currentLeaderboardView, dayStr = selectedL
     const todayStr = getDayStr();
 
     const userPromises = querySnapshot.docs.map(async (docSnap) => {
-        const userData = docSnap.data();
+        const userData = {
+            id: docSnap.id,
+            ...docSnap.data()
+        };
 
-        const [today, specificDay, allTime, average, best] = await Promise.all([
-            getScoreFromDay(userData, todayStr),
-            getScoreFromDay(userData, dayStr),
-            getAllTimeScore(userData),
-            getAverageScore(userData),
-            getBestScore(userData)
-        ]);
+        const days = await getUserDays(userData);
+
+        const scores = calculateUserScores(days, todayStr, dayStr);
 
         return {
-            id: docSnap.id,
             ...userData,
-            today,
-            specificDay,
-            allTime,
-            average,
-            best
+            ...scores
         };
     });
 
