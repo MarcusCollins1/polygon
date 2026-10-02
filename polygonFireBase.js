@@ -42,6 +42,12 @@ function getDayStr(date = new Date()) {
     return date.toISOString().slice(0, 10);
 }
 
+function getYesterdayStr() {
+    const yesterday = new Date();
+    yesterday.setUTCDate(yesterday.getUTCDate()-1);
+    return getDayStr(yesterday);
+}
+
 function scoreFromWords(words = []) {
     let score = 0;
 
@@ -133,6 +139,7 @@ let usersWithScores = [];
 let currentLeaderboardView = "today";
 let selectedLeaderboardDate = getDayStr();
 let currentMessage = null;
+let streakUpdatedToday = false;
 
 function showLoggedInUser(username) {
     if (currentUsernameAuth) currentUsernameAuth.textContent = username;
@@ -179,10 +186,13 @@ async function openAccountBox() {
         currentPasswordAccount.textContent = "********";
     }
 
-    const days = await getUserDays(currentUser);
-    const streaks = calculateStreak(days);
-    currentStreak.textContent = streaks.current;
-    longestStreak.textContent = streaks.longest;
+    const userRef = doc(db, "polygon-users", currentUser.username);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+        const data = userSnap.data();
+        currentStreak.textContent = data.currentStreak ?? 0;
+        longestStreak.textContent = data.longestStreak ?? 0;
+    }
 
     if (accountOverlay) {
         accountOverlay.classList.remove("hidden");
@@ -413,6 +423,9 @@ async function signup() {
     await setDoc(userRef, {
         username,
         password,
+        currentStreak: 0,
+        longestStreak: 0,
+        lastPlayedDate: null,
         createdAt: serverTimestamp()
     });
 
@@ -678,81 +691,46 @@ if (closeMessageBtn) {
     });
 }
 
-function calculateStreak(days) {
-    const playedDates = days.filter(day => (day.words || []).length > 0).map(day => day.id).sort();
+async function updateStreakIfNeeded() {
+    if (!currentUser.username) return;
 
-    if (playedDates.length === 0) {
-        return {
-            current: 0,
-            longest: 0
-        };
-    }
-    
-    const playedSet = new Set(playedDates);
+    if (streakUpdatedToday) return;
 
-    // Longest Streak
-    let longest = 0;
-    let running = 0;
-    let previousDate = null;
-
-    for (const dateStr of playedDates) {
-        const date = new Date(`${dateStr}T00:00:00Z`);
-
-        if (previousDate) {
-            const difference = (date-previousDate) / (1000 * 60 * 60 * 24);
-            if (difference === 1) {
-                running++;
-            } else {
-                running = 1;
-            }
-        } else {
-            running = 1;
-        }
-        longest = Math.max(longest, running);
-        previousDate = date;
-    }
-
-    // Current Streak
     const today = getDayStr();
+    const yesterday = getYesterdayStr();
 
-    const yesterdayDate = new Date();
-    yesterdayDate.setUTCDate(yesterdayDate.getUTCDate() - 1);
+    const userRef = doc(db, "polygon-users", currentUser.username);
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) return;
+    const data = userSnap.data();
 
-    const yesterday = getDayStr(yesterdayDate);
+    if (data.lastPlayedDate === today) {
+        return;
+    }
 
-    let checkDate;
+    const oldCurrentStreak = data.currentStreak ?? 0;
+    const oldLongestStreak = data.longestStreak ?? 0;
 
-    if (playedSet.has(today)) {
-        checkDate = new Date(`${today}T00:00:00Z`);
-    } else if (playedSet.has(yesterday)) {
-        checkDate = new Date(`${yesterday}T00:00:00Z`);
+    let newCurrentStreak;
+
+    if (data.lastPlayedDate === yesterday) {
+        newCurrentStreak = oldCurrentStreak + 1;
     } else {
-        return {
-            current: 0,
-            longest
-        };
+        newCurrentStreak = 1;
     }
 
-    let current = 0;
+    const newLongestStreak = Math.max(
+        oldLongestStreak,
+        newCurrentStreak
+    );
 
-    while (true) {
-        const dateString = getDayStr(checkDate);
+    await updateDoc(userRef, {
+        currentStreak: newCurrentStreak,
+        longestStreak: newLongestStreak,
+        lastPlayedDate: today
+    });
 
-        if (!playedSet.has(dateString)) {
-            break;
-        }
-
-        current++;
-
-        checkDate.setUTCDate(
-            checkDate.getUTCDate() - 1
-        );
-    }
-
-    return {
-        current,
-        longest
-    };
+    streakUpdatedToday = true;
 }
 
 export async function addWordForToday(word) {
@@ -775,6 +753,8 @@ export async function addWordForToday(word) {
     await updateDoc(dayRef, {
         words: arrayUnion(word)
     });
+
+    await updateStreakIfNeeded();
 }
 
 export async function getWordsForToday() {
