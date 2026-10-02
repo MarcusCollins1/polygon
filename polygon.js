@@ -120,7 +120,7 @@ function renderWordBreakdown() {
         ...Object.values(counts)
     );
 
-    for (let length = 4; length <= longestFound; i++) {
+    for (let length = 4; length <= longestFound; length++) {
         const count = counts[length] || 0;
         const percentage = (count / maxCount) * 100;
 
