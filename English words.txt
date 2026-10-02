@@ -1779,6 +1779,7 @@ ammunition
 amnesia
 amnesiac
 amnesic
+amnesties
 amnesty
 amniocentesis
 amnion
@@ -2423,6 +2424,7 @@ antiquity
 antirachitic
 antirrhinum
 antiscorbutic
+antisemite
 antisemitic
 antisemitism
 antisepsis
@@ -26827,12 +26829,12 @@ intelligible
 intelligibly
 intelsat
 intemerate
-intense
 intend
 intendancy
 intendant
 intended
 intenerate
+intense
 intensifier
 intensify
 intensional

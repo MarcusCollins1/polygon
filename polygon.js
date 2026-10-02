@@ -69,6 +69,9 @@ const foundWordsHeader = document.getElementById("foundWordsHeader");
 const foundWordsArrow = document.getElementById("foundWordsArrow");
 const foundWordsDropdown = document.getElementById("foundWordsDropdown");
 const foundWords = document.getElementById("foundWords");
+const wordBreakdownHeader = document.getElementById("wordBreakdownHeader");
+const wordBreakdownArrow = document.getElementById("wordBreakdownArrow");
+const wordBreakdownDropdown = document.getElementById("wordBreakdownDropdown");
 const foundCount = document.getElementById("foundCount");
 const foundProgress = document.getElementById("foundProgress");
 const scoreProgress = document.getElementById("scoreProgress");
@@ -339,6 +342,11 @@ function reloadAtNextMidnightUTC() {
 foundWordsHeader.addEventListener("click", () => {
     foundWordsDropdown.classList.toggle("collapsed");
     foundWordsArrow.classList.toggle("collapsed");
+});
+
+wordBreakdownHeader.addEventListener("click", () => {
+    wordBreakdownDropdown.classList.toggle("collapsed");
+    wordBreakdownArrow.classList.toggle("collapsed");
 });
 
 backSpaceBtn.addEventListener("click", () => {
