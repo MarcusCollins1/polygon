@@ -756,6 +756,8 @@ export async function addWordForToday(word) {
     });
 
     await updateStreakIfNeeded();
+
+    await checkAchievements();
 }
 
 export async function getWordsForToday() {
@@ -807,4 +809,55 @@ export async function getPuzzleForToday() {
 export async function savePuzzleForToday(puzzle) {
     const today = getDayStr();
     await savePuzzleForDate(today, puzzle);
+}
+
+async function unlockAchievement(achievementId) {
+    if (!currentUser) return;
+
+    const achievementRef = doc(db, "polygon-users", currentUser.username, "achievements", achievementId);
+
+    await setDoc(achievementRef, {unlockedAt: serverTimestamp()}, {merge: true});
+}
+
+async function checkAchievements() {
+    if (!currentUser) return;
+    achievementsRef = collection(db, "polygon-users", currentUser.username, "achievements");
+    achievementsDocs = await getDocs(achievementsRef);
+    const unlocked = new Set(achievementsDocs.docs.map(doc => doc.id));
+
+    const userRef = doc(db, "polygon-users", currentUser.username);
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) return;
+    const userData = userSnap.data();
+    const days = await getUserDays(currentUser);
+    // FIRST_WORD
+    if (!unlocked.has("FIRST_WORD")) {
+        const hasFoundAWord = days.some(day => (day.words || []).length > 0);
+        if (hasFoundAWord) {
+            await unlockAchievement("FIRST_WORD");
+        }
+    }
+    // STREAK_7
+    if (!unlocked.has("STREAK_7") && (userData.longestStreak ?? 0) >= 7) {
+        await unlockAchievement("STREAK_7");
+    }
+    // STREAK_30
+    if (!unlocked.has("STREAK_30") && (userData.longestStreak ?? 0) >= 30) {
+        await unlockAchievement("STREAK_30");
+    }
+    // PERFECT_PUZZLE
+    if (!unlockAchievement.has("PERFECT_PUZZLE")) {
+        for (const day of days) {
+            const puzzle = await getPuzzleForDate(day.id);
+
+            if (!puzzle) continue;
+
+            const foundWords = day.words || [];
+
+            if (puzzle.words?.length > 0 && foundWords.length >= puzzle.words.length) {
+                await unlockAchievement("PERFECT_PUZZLE");
+                break;
+            }
+        }
+    }
 }
