@@ -846,7 +846,7 @@ async function checkAchievements() {
         await unlockAchievement("STREAK_30");
     }
     // PERFECT_PUZZLE
-    if (!unlockAchievement.has("PERFECT_PUZZLE")) {
+    if (!unlocked.has("PERFECT_PUZZLE")) {
         for (const day of days) {
             const puzzle = await getPuzzleForDate(day.id);
 
