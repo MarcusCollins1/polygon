@@ -223,6 +223,34 @@ button {
     padding: 0px;
     color: black;
 }
+.streak-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 10px 0;
+}
+.streak-stat {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 12px;
+
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+.streak-icon {
+    font-size: 1.6rem;
+}
+.streak-value {
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+.streak-label {
+    color: var(--muted);
+    font-size: 0.8rem;
+}
 .icon-button {
     display: flex;
     align-items: center;

@@ -108,6 +108,8 @@ const currentUsernameAccount = document.getElementById("currentUsernameAccount")
 const currentPasswordAccount = document.getElementById("currentPasswordAccount");
 const showHideCurrentPasswordAccountButton = document.getElementById("showHideCurrentPasswordAccountButton");
 const showHideCurrentPasswordAccountButtonImage = document.getElementById("showHideCurrentPasswordAccountButtonImage");
+const currentStreak = document.getElementById("currentStreak");
+const longestStreak = document.getElementById("longestStreak");
 const closeAccountBtn = document.getElementById("closeAccountBtn");
 const deleteAccountBtn = document.getElementById("deleteAccountBtn");
 const leaderboardBtn = document.getElementById("leaderboardBtn");
@@ -166,7 +168,7 @@ function closeAuthBox() {
     if (authPassword) authPassword.value = "";
 }
 
-function openAccountBox() {
+async function openAccountBox() {
     if (!currentUser) return;
 
     if (currentUsernameAccount) {
@@ -176,6 +178,11 @@ function openAccountBox() {
     if (currentPasswordAccount) {
         currentPasswordAccount.textContent = "********";
     }
+
+    const days = await getUserDays(currentUser);
+    const streaks = calculateStreak(days);
+    currentStreak.textContent = streaks.current;
+    longestStreak.textContent = streaks.longest;
 
     if (accountOverlay) {
         accountOverlay.classList.remove("hidden");
@@ -669,6 +676,83 @@ if (closeMessageBtn) {
         messageOverlay.classList.add("hidden");
         currentMessage = null;
     });
+}
+
+function calculateStreak(days) {
+    const playedDates = days.filter(day => (day.word || []).length > 0).map(day => day.id).sort();
+
+    if (playedDates.length === 0) {
+        return {
+            current: 0,
+            longest: 0
+        };
+    }
+    
+    const playedSet = new Set(playedDates);
+
+    // Longest Streak
+    let longest = 0;
+    let running = 0;
+    let previousDate = null;
+
+    for (const dateStr of playedDates) {
+        const date = new Date(`${dateStr}T00:00:00Z`);
+
+        if (previousDate) {
+            const difference = (date-previousDate) / (1000 * 60 * 60 * 24);
+            if (difference === 1) {
+                running++;
+            } else {
+                running = 1;
+            }
+        } else {
+            running = 1;
+        }
+        longest = Math.max(longest, running);
+        previousDate = date;
+    }
+
+    // Current Streak
+    const today = getDayStr();
+
+    const yesterdayDate = new Date();
+    yesterdayDate.setUTCDate(yesterdayDate.getUTCDate() - 1);
+
+    const yesterday = getDayStr(yesterdayDate);
+
+    let checkDate;
+
+    if (playedSet.has(today)) {
+        checkDate = new Date(`${today}T00:00:00Z`);
+    } else if (playedSet.has(yesterday)) {
+        checkDate = new Date(`${yesterday}T00:00:00Z`);
+    } else {
+        return {
+            current: 0,
+            longest
+        };
+    }
+
+    let current = 0;
+
+    while (true) {
+        const dateString = getDayStr(checkDate);
+
+        if (!playedSet.has(dateString)) {
+            break;
+        }
+
+        current++;
+
+        checkDate.setUTCDate(
+            checkDate.getUTCDate() - 1
+        );
+    }
+
+    return {
+        current,
+        longest
+    };
 }
 
 export async function addWordForToday(word) {
