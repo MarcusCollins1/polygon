@@ -952,4 +952,11 @@ async function checkAchievements() {
             }
         }
     }
+    // WORDS_1000
+    if (!unlocked.has("WORDS_1000")) {
+        const numWords = days.reduce((total, day) => {return total + (day.words?.length || 0);}, 0);
+        if (numWords >= 1000) {
+            await unlockAchievement("WORDS_1000");
+        }
+    }
 }

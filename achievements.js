@@ -21,5 +21,11 @@ export const ACHIEVEMENTS = {
         name: "Perfection",
         description: "Find every word in a puzzle.",
         icon: "💯"
+    },
+
+    WORDS_1000: {
+        name: "Word Hunter",
+        description: "Find 1000 words.",
+        icon: "🔎"
     }
 };
