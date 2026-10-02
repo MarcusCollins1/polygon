@@ -70,6 +70,7 @@ const foundCount = document.getElementById("foundCount");
 const scoreEl = document.getElementById("score");
 const totalCount = document.getElementById("totalCount");
 const totalScore = document.getElementById("totalScore");
+const wordBreakdown = document.getElementById("wordBreakdown");
 
 let found = new Set();
 let showingAnswers = false;
@@ -102,6 +103,47 @@ function updateNextPuzzleCountdown() {
 
 updateNextPuzzleCountdown();
 setInterval(updateNextPuzzleCountdown, 1000);
+
+function renderWordBreakdown() {
+    wordBreakdown.innerHTML = "";
+
+    const counts = {};
+
+    [...found].forEach(word => {
+        counts[word.length] = (counts[word.length] || 0) + 1;
+    });
+
+    const longestFound = Math.max(4, ...Object.keys(counts).map(Number));
+    
+    const maxCount = Math.max(
+        1,
+        ...Object.values(counts)
+    );
+
+    for (let length = 4; length <= longestFound; i++) {
+        const count = counts[length] || 0;
+        const percentage = (count / maxCount) * 100;
+
+        const row = document.createElement("div");
+        row.className = "breakdown-row";
+
+        row.innerHTML = `
+            <div class="breakdown-info">
+                <span>${length} letters</span>
+                <span>${count}</span>
+            </div>
+
+            <div class="breakdown-bar">
+                <div
+                    class="breakdown-fill"
+                    style="width: ${percentage}%"
+                ></div>
+            </div>
+        `;
+
+        wordBreakdown.appendChild(row);
+    }
+}
 
 function normalize(word) {
     return word.trim().toLowerCase();
@@ -154,6 +196,7 @@ function renderFoundWords() {
         pill.textContent = word;
         foundWords.appendChild(pill);
     });
+    renderWordBreakdown();
 }
 
 function setMessage(text, type = "") {
