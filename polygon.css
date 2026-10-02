@@ -597,19 +597,42 @@ button.secondary {
     margin: 0;
 }
 .collapse-arrow {
-    font-size: 0.9rem;
-    transition: transform 0.2s ease;
+    display: inline-block;
+    transition: transform 0.35s ease;
 }
 .collapse-arrow.collapsed {
     transform: rotate(-90deg);
+}
+.found-words-dropdown {
+    display: grid;
+    grid-template-rows: 1fr;
+    opacity: 1;
+    margin-top: 10px;
+
+    transition: 
+        grid-template-rows 0.35s ease,
+        opacity 0.25s ease,
+        margin-top 0.35s ease;
+}
+.found-words-inner {
+    overflow: hidden;
+    min-height: 0;
+
+    transform: translateY(0);
+    transition: transform 0.35s ease;
+}
+.found-words-dropdown.collapsed {
+    grid-template-rows: 0fr;
+    opacity: 0;
+    margin-top: 0;
+}
+.found-words-dropdown.collapsed .found-words-inner {
+    transform: translateY(-8px);
 }
 .words {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-}
-.words.collapsed {
-    display: none;
 }
 .word {
     background: white;

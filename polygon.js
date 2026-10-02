@@ -67,6 +67,7 @@ const shareBtn = document.getElementById("shareBtn");
 const message = document.getElementById("message");
 const foundWordsHeader = document.getElementById("foundWordsHeader");
 const foundWordsArrow = document.getElementById("foundWordsArrow");
+const foundWordsDropdown = document.getElementById("foundWordsDropdown");
 const foundWords = document.getElementById("foundWords");
 const foundCount = document.getElementById("foundCount");
 const scoreEl = document.getElementById("score");
@@ -324,7 +325,7 @@ function reloadAtNextMidnightUTC() {
 }
 
 foundWordsHeader.addEventListener("click", () => {
-    foundWords.classList.toggle("collapsed");
+    foundWordsDropdown.classList.toggle("collapsed");
     foundWordsArrow.classList.toggle("collapsed");
 });
 
