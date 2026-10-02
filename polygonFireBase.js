@@ -821,8 +821,8 @@ async function unlockAchievement(achievementId) {
 
 async function checkAchievements() {
     if (!currentUser) return;
-    achievementsRef = collection(db, "polygon-users", currentUser.username, "achievements");
-    achievementsDocs = await getDocs(achievementsRef);
+    const achievementsRef = collection(db, "polygon-users", currentUser.username, "achievements");
+    const achievementsDocs = await getDocs(achievementsRef);
     const unlocked = new Set(achievementsDocs.docs.map(doc => doc.id));
 
     const userRef = doc(db, "polygon-users", currentUser.username);
