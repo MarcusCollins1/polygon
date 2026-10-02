@@ -701,7 +701,7 @@ async function getUserAchievements() {
     if (!currentUser) return [];
 
     const achievementsRef = collection(db, "polygon-users", currentUser.username, "achievements");
-    const snapshot = await getDocs(achievementRef);
+    const snapshot = await getDocs(achievementsRef);
 
     return snapshot.docs.map(docSnap => ({
         id: docSnap.id,
