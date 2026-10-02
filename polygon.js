@@ -65,6 +65,8 @@ const resetBtn = document.getElementById("resetBtn");
 const revealBtn = document.getElementById("revealBtn");
 const shareBtn = document.getElementById("shareBtn");
 const message = document.getElementById("message");
+const foundWordsHeader = document.getElementById("foundWordsHeader");
+const foundWordsArrow = document.getElementById("foundWordsArrow");
 const foundWords = document.getElementById("foundWords");
 const foundCount = document.getElementById("foundCount");
 const scoreEl = document.getElementById("score");
@@ -320,6 +322,11 @@ function reloadAtNextMidnightUTC() {
     console.log(`Next puzzle in ${Math.round(millisecondsUntilMidnight / 1000)} seconds`);
     setTimeout(() => {window.location.reload();}, millisecondsUntilMidnight);
 }
+
+foundWordsHeader.addEventListener("click", () => {
+    foundWords.classList.toggle("collapsed");
+    foundWordsArrow.classList.toggle("collapsed");
+});
 
 backSpaceBtn.addEventListener("click", () => {
     wordInput.value = wordInput.value.slice(0, -1);

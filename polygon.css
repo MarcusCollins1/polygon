@@ -586,10 +586,30 @@ button.secondary {
     border-radius: 999px;
     transition: width 0.3s ease;
 }
+.found-words-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+}
+.found-words-header h2 {
+    margin: 0;
+}
+.collapse-arrow {
+    font-size: 0.9rem;
+    transition: transform 0.2s ease;
+}
+.collapse-arrow.collapsed {
+    transform: rotate(-90deg);
+}
 .words {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+}
+.words.collapsed {
+    display: none;
 }
 .word {
     background: white;
