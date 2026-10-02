@@ -16,6 +16,7 @@ import {
     orderBy
 } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-analytics.js";
+import { ACHIEVEMENTS } from "./achievements";
 
 const firebaseConfig = {
     apiKey: "AIzaSyA_CXSZVz6meJgcJyktktWNmPtLmeFNXn0",
@@ -133,6 +134,11 @@ const messageTitle = document.getElementById("messageTitle");
 const messageBody = document.getElementById("messageBody");
 const markMessageReadBtn = document.getElementById("markMessageReadBtn");
 const closeMessageBtn = document.getElementById("closeMessageBtn");
+const achievementsBtn = document.getElementById("achievementsBtn");
+const achievementsOverlay = document.getElementById("achievementsOverlay");
+const achievementCount = document.getElementById("achievementCount");
+const achievementsList = document.getElementById("achievementsList");
+const closeAchievementsBtn = document.getElementById("closeAchievementsBtn");
 
 let currentUser = JSON.parse(localStorage.getItem("polygonCurrentUser") || "null");
 let usersWithScores = [];
@@ -688,6 +694,92 @@ if (closeMessageBtn) {
     closeMessageBtn.addEventListener("click", () => {
         messageOverlay.classList.add("hidden");
         currentMessage = null;
+    });
+}
+
+async function getUserAchievements() {
+    if (!currentUser) return [];
+
+    const achievementsRef = collection(db, "polygon-users", currentUser.username, "achievements");
+    const snapshot = await getDocs(achievementRef);
+
+    return snapshot.docs.map(docSnap => ({
+        id: docSnap.id,
+        ...docSnap.data()
+    }));
+}
+
+async function loadAchievements() {
+    const unlockedAchievements = await getUserAchievements();
+
+    const unlockedMap = new Map(
+        unlockedAchievements.map(achievement => [
+            achievement.id,
+            achievement
+        ])
+    );
+
+    achievementsList.innerHTML = "";
+
+    for (const [id, achievement] of Object.entries(ACHIEVEMENTS)) {
+        const unlocked = unlockedMap.get(id);
+
+        const element = document.createElement("div");
+
+        element.className = `achievement ${unlocked ? "unlocked" : "locked"}`;
+
+        let unlockedDate = "";
+
+        if (unlocked?.unlockedAt?.toDate) {
+            unlockedDate = unlocked?.unlockedAt?.toDate().toLocaleDateString();
+        }
+
+        element.innerHTML = `
+            <div class="achievement-icon">
+                ${unlocked ? achievement.icon : "🔒"}
+            </div>
+
+            <div class="achievement-info">
+                <div class="achievement-name">
+                    ${achievement.name}
+                </div>
+
+                <div class="achievement-description">
+                    ${achievement.description}
+                </div>
+
+                ${
+                    unlockedDate
+                        ? `<div class="achievement-date">
+                               Unlocked ${unlockedDate}
+                           </div>`
+                        : ""
+                }
+            </div>
+
+            ${
+                unlocked
+                    ? `<div class="achievement-check">✓</div>`
+                    : ""
+            }
+        `;
+
+        achievementsList.appendChild(element);
+    }
+
+    achievementCount.textContent = `${unlockedAchievements.length} / ${Object.keys(ACHIEVEMENTS).length}`;
+}
+
+if (achievementsBtn) {
+    achievementsBtn.addEventListener("click", async () => {
+        await loadAchievements();
+        achievementsOverlay.classList.remove("hidden");
+    });
+}
+
+if (closeAchievementsBtn) {
+    closeAchievementsBtn.addEventListener("click", () => {
+        achievementsOverlay.classList.add("hidden");
     });
 }
 

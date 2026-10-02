@@ -419,6 +419,95 @@ button {
 .message-overlay.hidden {
     display: none;
 }
+.achievements-overlay {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.55);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 1200;
+}
+.achievements-overlay.hidden {
+    display: none;
+}
+.achievements-box {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+
+    width: min(90vw, 500px);
+    max-height: 80vh;
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.achievements-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.achievements-header h2 {
+    margin: 0;
+}
+#achievementCount {
+    color: var(--muted);
+    font-weight: bold;
+}
+.achievements-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    overflow-y: auto;
+}
+.achievement {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 12px;
+
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+.achievement-icon {
+    font-size: 2rem;
+}
+.achievement-info {
+    flex: 1;
+}
+.achievement-name {
+    font-weight: bold;
+}
+.achievement-description {
+    margin-top: 3px;
+
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+.achievement-date {
+    margin-top: 5px;
+
+    color: var(--good);
+    font-size: 0.8rem;
+}
+.achievement.locked {
+    opacity: 0.5;
+}
+.achievement-check {
+    color: var(--good);
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+.achievements-actions {
+    display: flex;
+    justify-content: flex-end;
+}
 .app {
     width: min(860px, 100%);
     display: grid;
