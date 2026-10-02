@@ -679,7 +679,7 @@ if (closeMessageBtn) {
 }
 
 function calculateStreak(days) {
-    const playedDates = days.filter(day => (day.word || []).length > 0).map(day => day.id).sort();
+    const playedDates = days.filter(day => (day.words || []).length > 0).map(day => day.id).sort();
 
     if (playedDates.length === 0) {
         return {
