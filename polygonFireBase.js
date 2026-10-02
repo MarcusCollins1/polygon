@@ -705,6 +705,7 @@ async function updateStreakIfNeeded() {
     const data = userSnap.data();
 
     if (data.lastPlayedDate === today) {
+        streakUpdatedToday = true;
         return;
     }
 

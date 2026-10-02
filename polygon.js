@@ -70,6 +70,8 @@ const foundWordsArrow = document.getElementById("foundWordsArrow");
 const foundWordsDropdown = document.getElementById("foundWordsDropdown");
 const foundWords = document.getElementById("foundWords");
 const foundCount = document.getElementById("foundCount");
+const foundProgress = document.getElementById("foundProgress");
+const scoreProgress = document.getElementById("scoreProgress");
 const scoreEl = document.getElementById("score");
 const totalCount = document.getElementById("totalCount");
 const totalScore = document.getElementById("totalScore");
@@ -183,8 +185,18 @@ function buildBoard() {
 }
 
 function updateStats() {
-    foundCount.textContent = found.size;
-    scoreEl.textContent = [...found].reduce((sum, w) => sum + scoreForWord(w), 0);
+    const foundWordsCount = found.size;
+    const currentScore = [...found].reduce((sum, word) => sum + scoreForWord(word), 0);
+    const totalWordsCount = puzzle.words.length;
+    const maxScore = puzzle.words.reduce((sum, word) => sum + scoreForWord(word), 0);
+    foundCount.textContent = foundWordsCount;
+
+    scoreEl.textContent = currentScore;
+
+    const foundPercentage = totalWordsCount > 0 ? (foundWordsCount / totalWordsCount) * 100 : 0;
+    const scorePercentage = maxScore > 0 ? (currentScore / maxScore) * 100 : 0;
+    foundProgress.style.width = `${foundPercentage}%`;
+    scoreProgress.style.width = `${scorePercentage}%`;
 }
 
 function scoreForWord(word) {
