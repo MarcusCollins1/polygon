@@ -159,13 +159,13 @@ button {
     background: white;
     padding: 20px;
     border-radius: 12px;
-    width: min(90vw, 360px);
+    width: min(90vw, 480px);
     display: grid;
     gap: 10px;
 }
 .leaderboard-tabs {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 8px;
 }
 .leaderboard-tab {
