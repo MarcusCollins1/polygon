@@ -811,8 +811,8 @@ async function openUserProfile(user) {
 
     // First letter as a simple avatar
     profileAvatar.textContent = username.charAt(0).toUpperCase();
-    profileCurrentStreak = user.currentStreak ?? 0;
-    profileLongestStreak = user.longestStreak ?? 0;
+    profileCurrentStreak.textContent = user.currentStreak ?? 0;
+    profileLongestStreak.textContent = user.longestStreak ?? 0;
 
     await loadProfileAchievements(username);
 
