@@ -255,11 +255,13 @@ async function loadLeaderboard(view = currentLeaderboardView, dayStr = selectedL
 
         return {
             ...userData,
-            ...scores
+            ...scores,
+            days
         };
     });
 
     usersWithScores = await Promise.all(userPromises);
+    calculateWins(usersWithScores);
 
     currentLeaderboardView = view;
 
@@ -276,6 +278,7 @@ function renderLeaderboard(view) {
         if (view === "allTime") return b.allTime - a.allTime;
         if (view === "average") return b.average - a.average;
         if (view === "best") return b.best - a.best;
+        if (view === "wins") return b.wins - a.wins;
 
         return 0;
     });
@@ -288,6 +291,7 @@ function renderLeaderboard(view) {
         if (view === "allTime") value = user.allTime;
         if (view === "average") value = user.average.toFixed(2);
         if (view === "best") value = user.best;
+        if (view === "wins") value = user.wins;
 
         const isCurrentUser = 
             currentUser && 
@@ -348,6 +352,42 @@ function closeLeaderboardBox() {
     if (leaderboardOverlay) {
         leaderboardOverlay.classList.add("hidden");
     }
+}
+
+function calculateWins(users) {
+    // date -> [{ user, score }]
+    const scoresByDate = new Map();
+
+    // Build a list of everybody's scores for every day
+    users.forEach(user => {
+        user.wins = 0;
+
+        user.days.forEach(day => {
+            const score = scoreFromWords(day.words || []);
+
+            // Don't count a day where they scored nothing
+            if (score <= 0) return;
+
+            if (!scoresByDate.has(day.id)) {
+                scoresByDate.set(day.id, []);
+            }
+            
+            scoresByDate.get(day.id).push({user, score});
+        });
+    });
+
+    // Work out the winner(s) for each date
+    scoresByDate.forEach(entries => {
+        const highestScore = Math.max(
+            ...entries.map(entry => entry.score)
+        );
+
+        entries.forEach(entry => {
+            if (entry.score === highestScore) {
+                entry.user.wins++;
+            }
+        });
+    });
 }
 
 if (loginButton) {
