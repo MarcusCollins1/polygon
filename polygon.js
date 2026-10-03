@@ -61,6 +61,7 @@ const centerLetter = document.getElementById("centerLetter");
 const wordInput = document.getElementById("wordInput");
 const backSpaceBtn = document.getElementById("backSpaceBtn");
 const submitBtn = document.getElementById("submitBtn");
+const shuffleBtn = document.getElementById("shuffleBtn");
 const resetBtn = document.getElementById("resetBtn");
 const revealBtn = document.getElementById("revealBtn");
 const shareBtn = document.getElementById("shareBtn");
@@ -273,6 +274,23 @@ function submitWord(word = null) {
     }
 }
 
+function shuffleLetters() {
+    const tiles = [...document.querySelectorAll(".letter")];
+
+    const letters = tiles.map(tile => tile.querySelector("span").textContent);
+
+    // Fisher-Yates shuffle
+    for (let i = letters.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i+1));
+
+        [letters[i], letters[j]] = [letters[j], letters[i]];
+
+        tile.forEach((tile, index) => {
+            tile.querySelector("span").textContent = letters[index];
+        });
+    }
+}
+
 function resetPuzzle() {
     found = new Set();
     showingAnswers = false;
@@ -355,6 +373,7 @@ backSpaceBtn.addEventListener("click", () => {
 submitBtn.addEventListener("click", () => {
     submitWord();
 });
+shuffleBtn.addEventListener("click", shuffleLetters);
 resetBtn.addEventListener("click", () => {
     resetPuzzle();
     revealBtn.textContent = "Show Answers";
