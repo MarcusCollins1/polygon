@@ -279,6 +279,8 @@ function renderLeaderboard(view) {
         if (view === "average") return b.average - a.average;
         if (view === "best") return b.best - a.best;
         if (view === "wins") return b.wins - a.wins;
+        if (view === "currentStreak") return (b.currentStreak ?? 0) - (a.currentStreak ?? 0);
+        if (view === "longestStreak") return (b.longestStreak ?? 0) - (a.longestStreak ?? 0);
 
         return 0;
     });
@@ -292,6 +294,8 @@ function renderLeaderboard(view) {
         if (view === "average") value = user.average.toFixed(2);
         if (view === "best") value = user.best;
         if (view === "wins") value = user.wins;
+        if (view === "currentStreak") value = user.currentStreak ?? 0;
+        if (view === "longestStreak") value = user.longestStreak ?? 0;
 
         const isCurrentUser = 
             currentUser && 
