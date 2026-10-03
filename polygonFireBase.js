@@ -139,6 +139,13 @@ const achievementsOverlay = document.getElementById("achievementsOverlay");
 const achievementCount = document.getElementById("achievementCount");
 const achievementsList = document.getElementById("achievementsList");
 const closeAchievementsBtn = document.getElementById("closeAchievementsBtn");
+const profileOverlay = document.getElementById("profileOverlay");
+const profileUsername = document.getElementById("profileUsername");
+const profileAvatar = document.getElementById("profileAvatar");
+const profileCurrentStreak = document.getElementById("profileCurrentStreak");
+const profileLongestStreak = document.getElementById("profileLongestStreak");
+const profileAchievementsList = document.getElementById("profileAchievementsList");
+const closeProfileBtn = document.getElementById("closeProfileBtn");
 
 let currentUser = JSON.parse(localStorage.getItem("polygonCurrentUser") || "null");
 let usersWithScores = [];
@@ -293,12 +300,26 @@ function renderLeaderboard(view) {
         }
 
         return `
-            <div class="leaderboard-row ${isCurrentUser ? "current-user-row" : ""}">
+            <div
+                class="leaderboard-row ${isCurrentUser ? "current-user-row" : ""}"
+                data-username="${user.username || user.id}"
+            >
                 <span>#${index + 1} ${user.name || user.username || user.id}</span>
                 <span>${value}</span>
             </div>
         `;
     }).join("");
+
+    leaderboardBoxLeaderboard.querySelectorAll(".leaderboard-row").forEach(row => {
+        row.addEventListener("click", () => {
+            const username = row.dataset.username;
+            const user = usersWithScores.find(user => (user.username || user.id) === username);
+
+            if (user) {
+                openUserProfile(user);
+            }
+        });
+    });
 }
 
 function setActiveTab(view) {
@@ -780,6 +801,71 @@ if (achievementsBtn) {
 if (closeAchievementsBtn) {
     closeAchievementsBtn.addEventListener("click", () => {
         achievementsOverlay.classList.add("hidden");
+    });
+}
+
+async function openUserProfile(user) {
+    const username = user.username || user.id;
+
+    profileUsername.textContent = username;
+
+    // First letter as a simple avatar
+    profileAvatar.textContent = username.charAt(0).toUpperCase();
+    profileCurrentStreak = user.currentStreak ?? 0;
+    profileLongestStreak = user.longestStreak ?? 0;
+
+    await loadProfileAchievements(username);
+
+    profileOverlay.classList.remove("hidden");
+}
+
+async function loadProfileAchievements(username) {
+    const achievementsRef = collection(db, "polygon-users", username, "achievements");
+    const snapshot = await getDocs(achievementsRef);
+
+    profileAchievementsList.innerHTML = "";
+
+    if (snapshot.empty) {
+        profileAchievementsList.innerHTML =
+            `<span class="profile-no-achievements">
+                No achievements yet
+             </span>`;
+
+        return;
+    }
+
+    snapshot.docs.forEach(docSnap => {
+        const achievementId = docSnap.id;
+
+        const achievement = ACHIEVEMENTS[achievementId];
+        if (!achievement) return;
+
+        const badge = document.createElement("div");
+        badge.className = "profile-achievement";
+        badge.title = `${achievement.name}: ${achievement.description}`;
+
+        badge.innerHTML = `
+            <span class="profile-achievement-icon">
+                ${achievement.icon}
+            </span>
+
+            <span>${achievement.name}</span>
+        `;
+
+        profileAchievementsList.appendChild(badge);
+    });
+}
+
+if (closeProfileBtn) {
+    closeProfileBtn.addEventListener("click", () => {
+        profileOverlay.classList.add("hidden");
+    });
+}
+if (profileOverlay) {
+    profileOverlay.addEventListener("click", event => {
+        if (event.target === profileOverlay) {
+            profileOverlay.classList.add("hidden");
+        }
     });
 }
 

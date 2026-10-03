@@ -183,6 +183,13 @@ button {
     justify-content: space-between;
     padding: 8px;
     border-bottom: 1px solid #ccc;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+.leaderboard-row:hover {
+    background: #f6f8ff;
+    transform: translateX(3px);
 }
 .current-user-row {
     background: rgba(255, 215, 0, 0.2);
@@ -505,6 +512,113 @@ button {
     font-weight: bold;
 }
 .achievements-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+.profile-overlay {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(0, 0, 0, 0.55);
+
+    z-index: 1300;
+}
+.profile-overlay.hidden {
+    display: none;
+}
+.profile-box {
+    width: min(90vw, 420px);
+    padding: 22px;
+
+    background: white;
+    border-radius: 16px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.profile-header h2 {
+    margin: 0;
+}
+.profile-avatar {
+    width: 55px;
+    height: 55px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 50%;
+
+    background: var(--accent);
+    color: white;
+
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+.profile-subtitle {
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+.profile-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.profile-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding: 12px;
+
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+.profile-stat-icon {
+    font-size: 1.4rem;
+}
+.profile-stat strong {
+    margin-top: 4px;
+    font-size: 1.3rem;
+}
+.profile-stat span:last-child {
+    color: var(--muted);
+    font-size: 0.8rem;
+}
+.profile-achievements h3 {
+    margin: 0 0 10px;
+}
+#profileAchievementsList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.profile-achievement {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    padding: 7px 10px;
+
+    background: #e9edf7;
+    border-radius: 999px;
+
+    font-size: 0.85rem;
+}
+.profile-no-achievements {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+.profile-actions {
     display: flex;
     justify-content: flex-end;
 }
