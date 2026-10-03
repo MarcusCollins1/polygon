@@ -285,7 +285,7 @@ function shuffleLetters() {
 
         [letters[i], letters[j]] = [letters[j], letters[i]];
 
-        tile.forEach((tile, index) => {
+        tiles.forEach((tile, index) => {
             tile.querySelector("span").textContent = letters[index];
         });
     }
